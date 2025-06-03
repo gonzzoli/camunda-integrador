@@ -1,0 +1,156 @@
+### 1️⃣Caso Datos Válidos y Apto (flujo OK)
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+"num_socio": "123456",
+"especialidad": "Cardiología",
+"motivo": "Chequeo general",
+"fecha_turno": "2025-10-26"
+}
+
+### 2️⃣Caso Datos Inválidos (Socio vacío)
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "",
+  "especialidad": "Cardiología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "2025-10-26"
+}
+
+### 3️⃣Caso No Apto - Socio con Deuda, mail valido
+// Socio con deuda
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "999", 
+  "especialidad": "Cardiología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "2025-10-26"
+}
+
+### 4️⃣Caso No Apto - Especialidad No Cubierta
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "123456",
+  "especialidad": "Oncología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "2025-10-26"
+}
+
+### 5️⃣Caso Datos Inválidos (Motivo vacío)
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "123456",
+  "especialidad": "Cardiología",
+  "motivo": "",
+  "fecha_turno": "2025-10-26"
+}
+
+# NUEVAS PRUEBAS PARA INTEGRADOR
+
+### 1 Lanza timeout
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "123", // Lanza timeout en ValidarDatosPaciente
+  "especialidad": "Cardiología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "2025-10-26"
+}
+
+### 2 Socio No Registrado - Lanza Error que luego enviara mail exitosamente
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "1000", // No registrado, mail valido (NotificarRechazo)
+  "especialidad": "Cardiología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "2025-10-26"
+}
+
+### 3 Socio No Registrado - Lanza Error qe intentara enviar mail y lanza error tambien
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "1001", // No registrado, y mail invalido (NotificarRechazo)
+  "especialidad": "Cardiología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "2025-10-26"
+}
+
+### 4 No hay disponibilidad de turnos - Lanza Error que luego enviara mail exitosamente
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "2000", // No registrado, mail valido (NotificarRechazo)
+  "especialidad": "Cardiología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "2025-05-20"
+}
+
+### 5 No hay disponibilidad de turnos - Lanza Error qe intentara enviar mail y lanza error tambien
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "2001", // No registrado, y mail invalido (NotificarRechazo)
+  "especialidad": "Cardiología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "2025-05-20"
+}
+
+### 6 Turnos no disponibles
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "500", 
+  "especialidad": "Cardiología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "2025-05-20" // Turno no disponible, en RevisarAgenda
+}
+
+### 7 Notifica rechazo, lanza mail invalido
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "500", 
+  "especialidad": "Cardiología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "2025-05-20" // Turno no disponible, en RevisarAgenda
+}
+
+### 8 Turno duplicado, lanza error que finaliza proceso
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "500", 
+  "especialidad": "Cardiología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "2025-10-05" // Turno duplicado, en ConfirmarTurno
+}
+
+### 9 Fecha invalida, lanza error que finaliza proceso
+POST http://localhost:8099/api/proceso/start
+Content-Type: application/json
+
+{
+  "num_socio": "500", 
+  "especialidad": "Cardiología",
+  "motivo": "Chequeo general",
+  "fecha_turno": "20-10-2025" // Fecha invalida, en ConfirmarTurno
+}
