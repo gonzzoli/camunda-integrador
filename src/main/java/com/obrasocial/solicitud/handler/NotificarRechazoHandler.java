@@ -38,7 +38,13 @@ public class NotificarRechazoHandler {
                                 throw new MessagingException(
                                                 "No se pudo encontrar el correo del paciente con num_socio="
                                                                 + num_socio);
-
+                        // A pesar de que el email sea invalido, se envia igual
+                        // (despues me llega un correo informandome, pero eso camunda no lo sabe)
+                        if (correoPaciente.equals("email_invalido12sacas65f4as65sa@gmail.com"))
+                                throw new MessagingException(
+                                                "El correo es invalido para el socio: num_socio="
+                                                                + num_socio + ", correo= " + correoPaciente);
+                                                                
                         emailSender.enviarCorreo(correoPaciente, "Rechazo de solicitud",
                                         "Su solicitud ha sido rechazada.");
 

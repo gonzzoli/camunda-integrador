@@ -18,7 +18,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:serviceTask id="task_revisar_agenda" name="Consultar disponibilidad de turnos">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="revisarAgenda" />
+        <zeebe:taskDefinition type="revisarAgenda" retries="3" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flujo_AptoCobertura</bpmn:incoming>
       <bpmn:outgoing>Flow_1b0saqx</bpmn:outgoing>
@@ -47,7 +47,7 @@
     <bpmn:startEvent id="start_solicitud_recibida" name="Solicitud de Validacion Recibida">
       <bpmn:outgoing>Flujo_ValidarDatos</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:endEvent id="end_turno_rechazado" name="Turno rechazado y notificado">
+    <bpmn:endEvent id="end_turno_rechazado_mail_invalido" name="Turno rechazado y notificado">
       <bpmn:incoming>Flow_044kfob</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:endEvent id="end_turno_invalido" name="Turno no otorgado">
@@ -56,29 +56,31 @@
     </bpmn:endEvent>
     <bpmn:serviceTask id="task_validar_datos_paciente" name="Validar Datos del Paciente">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="validarDatosPaciente" />
+        <zeebe:taskDefinition type="validarDatosPaciente" retries="3" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flujo_ValidarDatos</bpmn:incoming>
       <bpmn:outgoing>Flujo_A_DecisionDatos</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="task_verificar_cobertura_paciente" name="Verificar Cobertura del Paciente">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="verificarCoberturaPaciente" />
+        <zeebe:taskDefinition type="verificarCoberturaPaciente" retries="3" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flujo_DatosValidos</bpmn:incoming>
       <bpmn:outgoing>Flujo_VerificarCobertura</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="Activity_1ly06cu" name="Notificar rechazo">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="notificarRechazo" />
+        <zeebe:taskDefinition type="notificarRechazo" retries="3" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flujo_NoApto</bpmn:incoming>
+      <bpmn:outgoing>Flow_1byf3tv</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="Activity_06p57vk" name="Notificar sin turnos">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="notificarNoDisponibilidad" />
+        <zeebe:taskDefinition type="notificarNoDisponibilidad" retries="3" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flujo_NoHayTurnos</bpmn:incoming>
+      <bpmn:outgoing>Flow_0w3pt2o</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flujo_NoApto" name="no" sourceRef="gateway_paciente_apto" targetRef="Activity_1ly06cu">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=apto=false</bpmn:conditionExpression>
@@ -101,7 +103,7 @@
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_15nrp9d" sourceRef="error_email_invalido1" targetRef="task_notificar_rechazo_manualmente" />
     <bpmn:sequenceFlow id="Flow_1e9ozyq" sourceRef="error_email_invalido2" targetRef="task_notificar_rechazo_manualmente" />
-    <bpmn:sequenceFlow id="Flow_044kfob" sourceRef="task_notificar_rechazo_manualmente" targetRef="end_turno_rechazado" />
+    <bpmn:sequenceFlow id="Flow_044kfob" sourceRef="task_notificar_rechazo_manualmente" targetRef="end_turno_rechazado_mail_invalido" />
     <bpmn:endEvent id="end_validacion_exitosa" name="Turno confirmado">
       <bpmn:incoming>Flow_1xt6qgw</bpmn:incoming>
     </bpmn:endEvent>
@@ -118,7 +120,7 @@
     <bpmn:sequenceFlow id="Flow_17nr286" sourceRef="error_turno_duplicado" targetRef="end_turno_invalido" />
     <bpmn:serviceTask id="task_confimar_turno" name="Confirmar turno">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="confirmarTurno" />
+        <zeebe:taskDefinition type="confirmarTurno" retries="3" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flujo_HayTurnosDisponibles</bpmn:incoming>
       <bpmn:outgoing>Flow_1xt6qgw</bpmn:outgoing>
@@ -146,6 +148,12 @@
       <bpmn:outgoing>Flow_0wi7f1t</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1gifhog" messageRef="Message_1pebr75" />
     </bpmn:startEvent>
+    <bpmn:endEvent id="end_turno_rechazado_mail_valido" name="Turno rechazado y notificado">
+      <bpmn:incoming>Flow_1byf3tv</bpmn:incoming>
+      <bpmn:incoming>Flow_0w3pt2o</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1byf3tv" sourceRef="Activity_1ly06cu" targetRef="end_turno_rechazado_mail_valido" />
+    <bpmn:sequenceFlow id="Flow_0w3pt2o" sourceRef="Activity_06p57vk" targetRef="end_turno_rechazado_mail_valido" />
   </bpmn:process>
   <bpmn:error id="Error_0l7xt1s" name="Error_14uo093" />
   <bpmn:error id="Error_0l94fdu" name="NoHayTurnosDisponibles" errorCode="no_hay_turnos_disponibles" />
@@ -191,7 +199,7 @@
           <dc:Bounds x="176" y="765" width="58" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0vmbu5g" bpmnElement="end_turno_rechazado" bioc:stroke="#831311" bioc:fill="#ffcdd2" color:background-color="#ffcdd2" color:border-color="#831311">
+      <bpmndi:BPMNShape id="BPMNShape_0vmbu5g" bpmnElement="end_turno_rechazado_mail_invalido" bioc:stroke="#831311" bioc:fill="#ffcdd2" color:background-color="#ffcdd2" color:border-color="#831311">
         <dc:Bounds x="1272" y="1082" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1248" y="1046" width="84" height="27" />
@@ -245,6 +253,24 @@
       <bpmndi:BPMNShape id="Event_118bmjy_di" bpmnElement="Event_13mc261">
         <dc:Bounds x="272" y="282" width="36" height="36" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_04hksfl" bpmnElement="end_turno_rechazado_mail_valido" bioc:stroke="#831311" bioc:fill="#ffcdd2" color:background-color="#ffcdd2" color:border-color="#831311">
+        <dc:Bounds x="842" y="902" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="818" y="866" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0jt4a49_di" bpmnElement="error_socio_con_deuda">
+        <dc:Bounds x="452" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="468" y="219" width="83" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_09wlznh_di" bpmnElement="error_socio_no_registrado">
+        <dc:Bounds x="402" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="375" y="212" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1lqq1yu_di" bpmnElement="error_turno_duplicado">
         <dc:Bounds x="1152" y="762" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -269,21 +295,24 @@
           <dc:Bounds x="715" y="973" width="69" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0jt4a49_di" bpmnElement="error_socio_con_deuda">
-        <dc:Bounds x="452" y="242" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="468" y="219" width="83" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_09wlznh_di" bpmnElement="error_socio_no_registrado">
-        <dc:Bounds x="402" y="242" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="375" y="212" width="50" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1b0saqx_di" bpmnElement="Flow_1b0saqx">
+        <di:waypoint x="900" y="740" />
+        <di:waypoint x="975" y="740" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_16zbwsz_di" bpmnElement="Flujo_A_DecisionDatos">
         <di:waypoint x="370" y="740" />
         <di:waypoint x="425" y="740" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1fjjrgh_di" bpmnElement="Flujo_ValidarDatos">
+        <di:waypoint x="218" y="740" />
+        <di:waypoint x="270" y="740" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="200" y="102" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0txb704_di" bpmnElement="Flujo_VerificarCobertura">
+        <di:waypoint x="630" y="740" />
+        <di:waypoint x="685" y="740" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_171ndsj_di" bpmnElement="Flujo_DatosInvalidos">
         <di:waypoint x="450" y="765" />
@@ -292,17 +321,6 @@
           <dc:Bounds x="459" y="796" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_195j5zc_di" bpmnElement="Flujo_DatosValidos">
-        <di:waypoint x="475" y="740" />
-        <di:waypoint x="530" y="740" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="499" y="722" width="8" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1b0saqx_di" bpmnElement="Flow_1b0saqx">
-        <di:waypoint x="900" y="740" />
-        <di:waypoint x="975" y="740" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1pbaw40_di" bpmnElement="Flujo_HayTurnosDisponibles">
         <di:waypoint x="1025" y="740" />
         <di:waypoint x="1150" y="740" />
@@ -310,16 +328,12 @@
           <dc:Bounds x="1084" y="722" width="8" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0tb6q4g_di" bpmnElement="Flujo_NoHayTurnos">
-        <di:waypoint x="1000" y="765" />
-        <di:waypoint x="1000" y="880" />
+      <bpmndi:BPMNEdge id="Flow_195j5zc_di" bpmnElement="Flujo_DatosValidos">
+        <di:waypoint x="475" y="740" />
+        <di:waypoint x="530" y="740" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1009" y="820" width="13" height="14" />
+          <dc:Bounds x="499" y="722" width="8" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0txb704_di" bpmnElement="Flujo_VerificarCobertura">
-        <di:waypoint x="630" y="740" />
-        <di:waypoint x="685" y="740" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0tm07f1_di" bpmnElement="Flujo_AptoCobertura">
         <di:waypoint x="735" y="740" />
@@ -335,26 +349,12 @@
           <dc:Bounds x="719" y="820" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1fjjrgh_di" bpmnElement="Flujo_ValidarDatos">
-        <di:waypoint x="218" y="740" />
-        <di:waypoint x="270" y="740" />
+      <bpmndi:BPMNEdge id="Flow_0tb6q4g_di" bpmnElement="Flujo_NoHayTurnos">
+        <di:waypoint x="1000" y="765" />
+        <di:waypoint x="1000" y="880" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="200" y="102" width="88" height="27" />
+          <dc:Bounds x="1009" y="820" width="13" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_044kfob_di" bpmnElement="Flow_044kfob">
-        <di:waypoint x="1170" y="1100" />
-        <di:waypoint x="1272" y="1100" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_081m417_di" bpmnElement="Flow_081m417">
-        <di:waypoint x="1220" y="798" />
-        <di:waypoint x="1220" y="890" />
-        <di:waypoint x="1272" y="890" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_17nr286_di" bpmnElement="Flow_17nr286">
-        <di:waypoint x="1170" y="798" />
-        <di:waypoint x="1170" y="890" />
-        <di:waypoint x="1272" y="890" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15nrp9d_di" bpmnElement="Flow_15nrp9d">
         <di:waypoint x="710" y="978" />
@@ -366,9 +366,23 @@
         <di:waypoint x="1000" y="1100" />
         <di:waypoint x="1070" y="1100" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_044kfob_di" bpmnElement="Flow_044kfob">
+        <di:waypoint x="1170" y="1100" />
+        <di:waypoint x="1272" y="1100" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1xt6qgw_di" bpmnElement="Flow_1xt6qgw">
         <di:waypoint x="1250" y="740" />
         <di:waypoint x="1382" y="740" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_081m417_di" bpmnElement="Flow_081m417">
+        <di:waypoint x="1220" y="798" />
+        <di:waypoint x="1220" y="890" />
+        <di:waypoint x="1272" y="890" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17nr286_di" bpmnElement="Flow_17nr286">
+        <di:waypoint x="1170" y="798" />
+        <di:waypoint x="1170" y="890" />
+        <di:waypoint x="1272" y="890" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ufwaz4_di" bpmnElement="Flow_0ufwaz4">
         <di:waypoint x="470" y="242" />
@@ -385,6 +399,14 @@
       <bpmndi:BPMNEdge id="Flow_0wi7f1t_di" bpmnElement="Flow_0wi7f1t">
         <di:waypoint x="308" y="300" />
         <di:waypoint x="390" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1byf3tv_di" bpmnElement="Flow_1byf3tv">
+        <di:waypoint x="760" y="920" />
+        <di:waypoint x="842" y="920" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0w3pt2o_di" bpmnElement="Flow_0w3pt2o">
+        <di:waypoint x="950" y="920" />
+        <di:waypoint x="878" y="920" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

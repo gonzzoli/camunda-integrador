@@ -56,73 +56,79 @@ Content-Type: application/json
 
 # NUEVAS PRUEBAS PARA INTEGRADOR
 
-### 1 Lanza timeout
+### 6 Lanza timeout (en ValidarDatosPaciente)
 POST http://localhost:8099/api/proceso/start
 Content-Type: application/json
 
 {
-  "num_socio": "123", // Lanza timeout en ValidarDatosPaciente
+  "num_socio": "123", 
   "especialidad": "Cardiología",
   "motivo": "Chequeo general",
   "fecha_turno": "2025-10-26"
 }
 
-### 2 Socio No Registrado - Lanza Error que luego enviara mail exitosamente
+### 7 Socio No Registrado - Lanza Error que luego enviara mail exitosamente
+ // No registrado, mail valido (NotificarRechazo)
 POST http://localhost:8099/api/proceso/start
 Content-Type: application/json
 
 {
-  "num_socio": "1000", // No registrado, mail valido (NotificarRechazo)
+  "num_socio": "1000",
   "especialidad": "Cardiología",
   "motivo": "Chequeo general",
   "fecha_turno": "2025-10-26"
 }
 
-### 3 Socio No Registrado - Lanza Error qe intentara enviar mail y lanza error tambien
+### 8 Socio No Registrado - Lanza Error que intentara enviar mail y lanza error tambien
+// No registrado, y mail invalido (NotificarRechazo)
 POST http://localhost:8099/api/proceso/start
 Content-Type: application/json
 
 {
-  "num_socio": "1001", // No registrado, y mail invalido (NotificarRechazo)
+  "num_socio": "1001", 
   "especialidad": "Cardiología",
   "motivo": "Chequeo general",
   "fecha_turno": "2025-10-26"
 }
 
-### 4 No hay disponibilidad de turnos - Lanza Error que luego enviara mail exitosamente
+### 9 No hay disponibilidad de turnos - Lanza Error que luego enviara mail exitosamente
+// No registrado, mail valido (NotificarRechazo)
 POST http://localhost:8099/api/proceso/start
 Content-Type: application/json
 
 {
-  "num_socio": "2000", // No registrado, mail valido (NotificarRechazo)
+  "num_socio": "2000", 
   "especialidad": "Cardiología",
   "motivo": "Chequeo general",
   "fecha_turno": "2025-05-20"
 }
 
-### 5 No hay disponibilidad de turnos - Lanza Error qe intentara enviar mail y lanza error tambien
+### 10 No hay disponibilidad de turnos - Lanza Error que intentara enviar mail y lanza error tambien
+// No registrado, y mail invalido (NotificarRechazo)
 POST http://localhost:8099/api/proceso/start
 Content-Type: application/json
 
 {
-  "num_socio": "2001", // No registrado, y mail invalido (NotificarRechazo)
+  "num_socio": "2001", 
   "especialidad": "Cardiología",
   "motivo": "Chequeo general",
   "fecha_turno": "2025-05-20"
 }
 
-### 6 Turnos no disponibles
+### 11 Turnos no disponibles
+ // Turno no disponible, en RevisarAgenda
 POST http://localhost:8099/api/proceso/start
 Content-Type: application/json
 
 {
-  "num_socio": "500", 
+  "num_socio": "2000", 
   "especialidad": "Cardiología",
   "motivo": "Chequeo general",
-  "fecha_turno": "2025-05-20" // Turno no disponible, en RevisarAgenda
+  "fecha_turno": "2025-05-20"
 }
 
-### 7 Notifica rechazo, lanza mail invalido
+### 12 Notifica turno no disponible, lanza mail invalido
+// Turno no disponible, en RevisarAgenda
 POST http://localhost:8099/api/proceso/start
 Content-Type: application/json
 
@@ -130,10 +136,11 @@ Content-Type: application/json
   "num_socio": "500", 
   "especialidad": "Cardiología",
   "motivo": "Chequeo general",
-  "fecha_turno": "2025-05-20" // Turno no disponible, en RevisarAgenda
+  "fecha_turno": "2025-05-20" 
 }
 
-### 8 Turno duplicado, lanza error que finaliza proceso
+### 13 Turno duplicado, lanza error que finaliza proceso
+ // Turno duplicado, en ConfirmarTurno
 POST http://localhost:8099/api/proceso/start
 Content-Type: application/json
 
@@ -141,10 +148,11 @@ Content-Type: application/json
   "num_socio": "500", 
   "especialidad": "Cardiología",
   "motivo": "Chequeo general",
-  "fecha_turno": "2025-10-05" // Turno duplicado, en ConfirmarTurno
+  "fecha_turno": "2025-10-05"
 }
 
-### 9 Fecha invalida, lanza error que finaliza proceso
+### 14 Fecha invalida, lanza error que finaliza proceso
+// Fecha invalida, en ConfirmarTurno
 POST http://localhost:8099/api/proceso/start
 Content-Type: application/json
 
@@ -152,5 +160,5 @@ Content-Type: application/json
   "num_socio": "500", 
   "especialidad": "Cardiología",
   "motivo": "Chequeo general",
-  "fecha_turno": "20-10-2025" // Fecha invalida, en ConfirmarTurno
+  "fecha_turno": "20-10-2025" 
 }

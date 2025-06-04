@@ -1,0 +1,149 @@
+1 Caso Datos Válidos y Apto (flujo OK)
+2025-06-03 22:00:17.276 INFO  [nio-8099-exec-2] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=123456, especialidad=Cardiología, 
+motivo=2025-06-03 22:00:17.355 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=123456, especialidad=Cardiología, motivo=Chequeo general        
+2025-06-03 22:00:17.405 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=true, razonRechazo=null
+2025-06-03 22:00:17.418 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Verificando cobertura para num_socio=123456, especialidad=Cardiología
+2025-06-03 22:00:17.474 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Resultado de cobertura: apto=true, razonRechazo=null
+2025-06-03 22:00:17.487 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Revisando agenda para num_socio=123456, fecha_turno=2025-10-26
+2025-06-03 22:00:17.606 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Resultado de la revisión: turno_disponible=true
+2025-06-03 22:00:17.707 INFO  [pool-2-thread-1] c.o.s.handler.ConfirmarTurnoHandler      : Confirmando turno para num_socio=123456, especialidad=Cardiología, fecha=2025-10-26
+2025-06-03 22:00:17.708 INFO  [pool-2-thread-1] c.o.s.handler.ConfirmarTurnoHandler      : Turno confirmado para num_socio=123456, especialidad=Cardiología, fecha=2025-10-26
+
+
+2 Caso Datos Inválidos (Socio vacío)
+2025-06-03 22:01:25.075 INFO  [nio-8099-exec-4] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=, especialidad=Cardiología, motivo=Chequeo general, fecha_turno=2025-10-26}
+2025-06-03 22:01:25.437 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=, especialidad=Cardiología, motivo=Chequeo general
+2025-06-03 22:01:25.574 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=false, razonRechazo=Número de socio vacío
+
+
+3 Caso No Apto - Socio con Deuda, mail valido
+2025-06-03 22:01:40.769 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=999, especialidad=Cardiología, motivo=Chequeo general
+2025-06-03 22:01:41.029 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=true, razonRechazo=null
+2025-06-03 22:01:41.031 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Verificando cobertura para num_socio=999, especialidad=Cardiología
+2025-06-03 22:01:41.162 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Resultado de cobertura: apto=false, razonRechazo=Socio con deuda pendiente
+2025-06-03 22:01:54.441 INFO  [pool-2-thread-1] c.o.s.handler.NotificarRechazoHandler    : Notificacion de rechazo enviada al paciente con num_socio=999
+
+
+4 Caso No Apto - Especialidad No Cubierta - Error mail inexistente
+2025-06-03 22:02:40.916 INFO  [nio-8099-exec-6] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=123456, especialidad=Oncología, motivo=Chequeo general, fecha_turno=2025-10-26}
+2025-06-03 22:02:41.015 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=123456, especialidad=Oncología, motivo=Chequeo general
+2025-06-03 22:02:41.061 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=true, razonRechazo=null
+2025-06-03 22:02:41.070 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Verificando cobertura para num_socio=123456, especialidad=Oncología
+2025-06-03 22:02:41.167 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Resultado de cobertura: apto=false, razonRechazo=Especialidad no cubierta por el plan
+2025-06-03 22:02:41.180 ERROR [pool-2-thread-1] c.o.s.handler.NotificarRechazoHandler    : Error tecnico al notificar rechazo al paciente
+jakarta.mail.MessagingException: No se pudo encontrar el correo del paciente con num_socio=123456
+        at com.obrasocial.solicitud.handler.NotificarRechazoHandler.handleNotificarRechazo(NotificarRechazoHandler.java:38)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+
+5 Caso Datos Inválidos (Motivo vacío)
+2025-06-03 22:03:22.937 INFO  [nio-8099-exec-7] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=123456, especialidad=Cardiología, motivo=, fecha_turno=2025-10-26}
+2025-06-03 22:03:23.054 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=123456, especialidad=Cardiología, motivo=
+2025-06-03 22:03:23.130 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=false, razonRechazo=Motivo de consulta vacío
+
+
+6 Lanza timeout (en ValidarDatosPaciente)
+2025-06-03 22:04:16.592 INFO  [nio-8099-exec-8] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=123, especialidad=Cardiología, motivo=Chequeo general, fecha_turno=2025-10-26}
+2025-06-03 22:04:16.904 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=123, especialidad=Cardiología, motivo=Chequeo general
+2025-06-03 22:04:16.904 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Se trabo el jobWorker para num_socio: num_socio=123
+
+
+7 Socio No Registrado - Lanza Error que luego enviara mail exitosamente
+ // No registrado, mail valido (NotificarRechazo)
+ 2025-06-03 22:11:21.853 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=1000, especialidad=Cardiología, motivo=Chequeo general
+2025-06-03 22:11:23.469 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=true, razonRechazo=null
+2025-06-03 22:11:23.494 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Verificando cobertura para num_socio=1000, especialidad=Cardiología
+2025-06-03 22:11:23.706 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Resultado de cobertura: apto=false, razonRechazo=Socio no registrado
+2025-06-03 22:11:37.271 INFO  [pool-2-thread-1] c.o.s.handler.NotificarRechazoHandler    : Notificacion de rechazo enviada al paciente con num_socio=1000
+
+
+8 Socio No Registrado - Lanza Error que intentara enviar mail y lanza error tambien
+// No registrado, y mail invalido (NotificarRechazo)
+2025-06-03 22:12:04.509 INFO  [nio-8099-exec-1] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=1001, especialidad=Cardiología, motivo=Chequeo general, fecha_turno=2025-10-26}
+2025-06-03 22:12:04.983 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=1001, especialidad=Cardiología, motivo=Chequeo general
+2025-06-03 22:12:05.124 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=true, razonRechazo=null
+2025-06-03 22:12:05.138 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Verificando cobertura para num_socio=1001, especialidad=Cardiología
+2025-06-03 22:12:05.222 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Resultado de cobertura: apto=false, razonRechazo=Socio no registrado
+2025-06-03 22:12:05.237 ERROR [pool-2-thread-1] c.o.s.handler.NotificarRechazoHandler    : Error tecnico al notificar rechazo al paciente
+jakarta.mail.MessagingException: El correo es invalido para el socio: num_socio=1001, correo= email_invalido12sacas65f4as65sa@gmail.com
+        at com.obrasocial.solicitud.handler.NotificarRechazoHandler.handleNotificarRechazo(NotificarRechazoHandler.java:44)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+
+9 No hay disponibilidad de turnos - Lanza Error que luego enviara mail exitosamente
+// No registrado, mail valido (NotificarRechazo)
+2025-06-03 22:12:43.560 INFO  [nio-8099-exec-2] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=2000, especialidad=Cardiología, motivo=Chequeo general, fecha_turno=2025-05-20}
+2025-06-03 22:12:43.639 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=2000, especialidad=Cardiología, motivo=Chequeo general
+2025-06-03 22:12:43.711 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=true, razonRechazo=null
+2025-06-03 22:12:43.769 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Verificando cobertura para num_socio=2000, especialidad=Cardiología
+2025-06-03 22:12:43.858 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Resultado de cobertura: apto=true, razonRechazo=null
+2025-06-03 22:12:43.872 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Revisando agenda para num_socio=2000, fecha_turno=2025-05-20
+2025-06-03 22:12:43.956 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Resultado de la revisión: turno_disponible=false
+2025-06-03 22:12:57.819 INFO  [pool-2-thread-1] c.o.s.h.NotificarNoDisponibilidadHandler : Notificacion de indisponibilidad enviada al paciente con num_socio=2000
+
+
+10 No hay disponibilidad de turnos - Lanza Error qe intentara enviar mail y lanza error tambien
+// No registrado, y mail invalido (NotificarRechazo)
+2025-06-03 22:13:30.043 INFO  [nio-8099-exec-3] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=2001, especialidad=Cardiología, motivo=Chequeo general, fecha_turno=2025-05-20}
+2025-06-03 22:13:30.107 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=2001, especialidad=Cardiología, motivo=Chequeo general
+2025-06-03 22:13:30.160 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=true, razonRechazo=null
+2025-06-03 22:13:30.170 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Verificando cobertura para num_socio=2001, especialidad=Cardiología
+2025-06-03 22:13:30.234 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Resultado de cobertura: apto=true, razonRechazo=null
+2025-06-03 22:13:31.077 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Revisando agenda para num_socio=2001, fecha_turno=2025-05-20
+2025-06-03 22:13:31.107 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Resultado de la revisión: turno_disponible=false
+2025-06-03 22:13:31.133 ERROR [pool-2-thread-1] c.o.s.h.NotificarNoDisponibilidadHandler : Error tecnico al notificar indisponibilidad al paciente
+jakarta.mail.MessagingException: El correo es invalido para el socio: num_socio=2001, correo= email_invalido12sacas65f4as65sa@gmail.com
+        at com.obrasocial.solicitud.handler.NotificarNoDisponibilidadHandler.handleNotificarNoDisponibilidad(NotificarNoDisponibilidadHandler.java:44)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+
+11 Turnos no disponibles
+ // Turno no disponible, en RevisarAgenda
+ 2025-06-03 22:13:55.817 INFO  [nio-8099-exec-4] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=2000, especialidad=Cardiología, motivo=Chequeo general, fecha_turno=2025-05-20}
+2025-06-03 22:13:55.898 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=2000, especialidad=Cardiología, motivo=Chequeo general
+2025-06-03 22:13:55.932 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=true, razonRechazo=null
+2025-06-03 22:13:55.941 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Verificando cobertura para num_socio=2000, especialidad=Cardiología
+2025-06-03 22:13:55.983 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Resultado de cobertura: apto=true, razonRechazo=null
+2025-06-03 22:13:55.997 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Revisando agenda para num_socio=2000, fecha_turno=2025-05-20
+2025-06-03 22:13:56.074 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Resultado de la revisión: turno_disponible=false
+2025-06-03 22:14:08.910 INFO  [pool-2-thread-1] c.o.s.h.NotificarNoDisponibilidadHandler : Notificacion de indisponibilidad enviada al paciente con num_socio=2000
+
+
+12 Notifica turno no disponible, lanza mail invalido
+// Turno no disponible, en RevisarAgenda
+2025-06-03 22:14:47.615 INFO  [nio-8099-exec-5] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=500, especialidad=Cardiología, motivo=Chequeo general, fecha_turno=2025-05-20}
+2025-06-03 22:14:47.874 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=500, especialidad=Cardiología, motivo=Chequeo general
+2025-06-03 22:14:48.069 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=true, razonRechazo=null
+2025-06-03 22:14:48.071 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Verificando cobertura para num_socio=500, especialidad=Cardiología
+2025-06-03 22:14:48.154 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Resultado de cobertura: apto=true, razonRechazo=null
+2025-06-03 22:14:48.163 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Revisando agenda para num_socio=500, fecha_turno=2025-05-20
+2025-06-03 22:14:48.208 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Resultado de la revisión: turno_disponible=false
+2025-06-03 22:14:48.222 ERROR [pool-2-thread-1] c.o.s.h.NotificarNoDisponibilidadHandler : Error tecnico al notificar indisponibilidad al paciente
+jakarta.mail.MessagingException: No se pudo encontrar el correo del paciente con num_socio=500
+        at com.obrasocial.solicitud.handler.NotificarNoDisponibilidadHandler.handleNotificarNoDisponibilidad(NotificarNoDisponibilidadHandler.java:37)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+
+13 Turno duplicado, lanza error que finaliza proceso
+ // Turno duplicado, en ConfirmarTurno
+ 2025-06-03 22:15:07.354 INFO  [nio-8099-exec-6] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=500, especialidad=Cardiología, motivo=Chequeo general, fecha_turno=2025-10-05}
+2025-06-03 22:15:07.439 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=500, especialidad=Cardiología, motivo=Chequeo general
+2025-06-03 22:15:07.468 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=true, razonRechazo=null
+2025-06-03 22:15:07.479 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Verificando cobertura para num_socio=500, especialidad=Cardiología
+2025-06-03 22:15:07.546 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Resultado de cobertura: apto=true, razonRechazo=null
+2025-06-03 22:15:07.554 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Revisando agenda para num_socio=500, fecha_turno=2025-10-05
+2025-06-03 22:15:07.615 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Resultado de la revisión: turno_disponible=true
+2025-06-03 22:15:07.627 INFO  [pool-2-thread-1] c.o.s.handler.ConfirmarTurnoHandler      : Confirmando turno para num_socio=500, especialidad=Cardiología, fecha=2025-10-05
+2025-06-03 22:15:07.664 INFO  [pool-2-thread-1] c.o.s.handler.ConfirmarTurnoHandler      : Turno duplicado para num_socio=500, especialidad=Cardiología, fecha=2025-10-05
+
+14 Fecha invalida, lanza error que finaliza proceso
+// Fecha invalida, en ConfirmarTurno
+2025-06-03 22:15:25.394 INFO  [nio-8099-exec-7] c.o.s.r.StartProcesoValidacionController : Starting process `clientValidation` with variables: {num_socio=500, especialidad=Cardiología, motivo=Chequeo general, fecha_turno=20-10-2025}
+2025-06-03 22:15:25.592 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Validando datos del paciente: num_socio=500, especialidad=Cardiología, motivo=Chequeo general
+2025-06-03 22:15:25.754 INFO  [pool-2-thread-1] c.o.s.h.ValidarDatosPacienteHandler      : Resultado de validación: datosValidos=true, razonRechazo=null
+2025-06-03 22:15:25.756 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Verificando cobertura para num_socio=500, especialidad=Cardiología
+2025-06-03 22:15:25.856 INFO  [pool-2-thread-1] .o.s.h.VerificarCoberturaPacienteHandler : Resultado de cobertura: apto=true, razonRechazo=null
+2025-06-03 22:15:25.859 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Revisando agenda para num_socio=500, fecha_turno=20-10-2025
+2025-06-03 22:15:25.932 INFO  [pool-2-thread-1] c.o.s.handler.RevisarAgendaHandler       : Resultado de la revisión: turno_disponible=true
+2025-06-03 22:15:25.943 INFO  [pool-2-thread-1] c.o.s.handler.ConfirmarTurnoHandler      : Confirmando turno para num_socio=500, especialidad=Cardiología, fecha=20-10-2025
+2025-06-03 22:15:25.999 INFO  [pool-2-thread-1] c.o.s.handler.ConfirmarTurnoHandler      : Fecha invalida de turno para num_socio=500, especialidad=Cardiología, fecha=20-10-2025
